@@ -1,9 +1,11 @@
 
+import ProductSection from "../../components/ProductSection";
 
 export default function Home() {
   return (
-       <>
-          <h1> welcome t shirt</h1>
-       </>
-  );
+
+    <>
+       <ProductSection/>
+    </>
+  )
 }
