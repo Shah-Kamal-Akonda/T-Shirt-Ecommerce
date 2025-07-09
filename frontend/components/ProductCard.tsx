@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -25,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <p className="text-sm text-gray-500">{product.description.substring(0, 100)}...</p>
       <div className="flex gap-2 mt-2">
         {product.images.map((image, index) => (
-          <img
+          <Image
             key={index}
             src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
             alt={product.name}

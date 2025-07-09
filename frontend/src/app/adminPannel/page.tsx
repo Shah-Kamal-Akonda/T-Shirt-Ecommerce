@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -247,7 +248,7 @@ const AdminPanel: React.FC = () => {
               <p>{product.description.substring(0, 100)}...</p>
               <div className="flex gap-2">
                 {product.images.map((image, index) => (
-                  <img
+                  <Image
                     key={index}
                     src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
                     alt={product.name}
