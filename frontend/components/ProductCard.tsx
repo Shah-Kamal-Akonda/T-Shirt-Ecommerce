@@ -7,8 +7,8 @@ interface Product {
   name: string;
   price: number;
   description: string;
-  images: string[];
-  categories: { id: number; name: string }[];
+  images: string[] | null | undefined;
+  categories: { id: number; name: string }[] | null | undefined;
 }
 
 interface ProductCardProps {
@@ -25,17 +25,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <p className="text-gray-600">Price: ${product.price}</p>
       <p className="text-sm text-gray-500">{product.description.substring(0, 100)}...</p>
       <div className="flex gap-2 mt-2">
-        {product.images.map((image, index) => (
+        {Array.isArray(product.images) && product.images.length > 0 ? (
           <Image
-            key={index}
-            src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
+            src={`${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`}
             alt={product.name}
-            className="w-24 h-24 object-cover rounded"
+            width={96}
+            height={96}
+            className="object-cover rounded"
           />
-        ))}
+        ) : (
+          <p className="text-gray-500">No images available</p>
+        )}
       </div>
       <p className="text-sm text-gray-400 mt-2">
-        Categories: {product.categories.map((cat) => cat.name).join(', ')}
+        Categories:{' '}
+        {Array.isArray(product.categories) && product.categories.length > 0
+          ? product.categories.map((cat) => cat.name).join(', ')
+          : 'None'}
       </p>
     </Link>
   );

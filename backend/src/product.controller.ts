@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Patch, Delete, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -12,7 +12,7 @@ export class ProductController {
   @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './Uploads',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -25,14 +25,15 @@ export class ProductController {
   )
   async create(
     @Body('name') name: string,
-    @Body('price') price: number,
+    @Body('price') price: string,
     @Body('description') description: string,
     @UploadedFiles() files: Express.Multer.File[],
     @Body('categoryIds') categoryIds: string,
   ) {
-    const imagePaths = files.map((file) => `/uploads/${file.filename}`);
+    const imagePaths = files.map((file) => `/Uploads/${file.filename}`);
     const parsedCategoryIds = JSON.parse(categoryIds);
-    return this.productService.createProduct(name, price, description, imagePaths, parsedCategoryIds);
+    const parsedPrice = parseFloat(price);
+    return this.productService.createProduct(name, parsedPrice, description, imagePaths, parsedCategoryIds);
   }
 
   @Get()
@@ -54,7 +55,7 @@ export class ProductController {
   @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './Uploads',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -68,14 +69,15 @@ export class ProductController {
   async update(
     @Param('id') id: number,
     @Body('name') name: string,
-    @Body('price') price: number,
+    @Body('price') price: string,
     @Body('description') description: string,
     @UploadedFiles() files: Express.Multer.File[],
     @Body('categoryIds') categoryIds: string,
   ) {
-    const imagePaths = files.map((file) => `/uploads/${file.filename}`);
+    const imagePaths = files.map((file) => `/Uploads/${file.filename}`);
     const parsedCategoryIds = JSON.parse(categoryIds);
-    return this.productService.updateProduct(id, name, price, description, imagePaths, parsedCategoryIds);
+    const parsedPrice = parseFloat(price);
+    return this.productService.updateProduct(id, name, parsedPrice, description, imagePaths, parsedCategoryIds);
   }
 
   @Delete(':id')

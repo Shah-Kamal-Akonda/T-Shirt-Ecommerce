@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -25,12 +24,13 @@ const AdminPanel: React.FC = () => {
     name: '',
     price: 0,
     description: '',
-    images: [] as File[],
+    images: [null, null, null, null, null] as (File | null)[], // Array for up to 5 images
     categoryIds: [] as number[],
   });
-  const [categoryForm, setCategoryForm] = useState({ id: 0, name: '' });
+  const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null, null, null, null, null]);
   const [isEditingProduct, setIsEditingProduct] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
+  const [categoryForm, setCategoryForm] = useState({ id: 0, name: '' });
 
   useEffect(() => {
     fetchProducts();
@@ -55,6 +55,34 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleImageChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    console.log(`Selected file for input ${index + 1}:`, file?.name || 'None'); // Debug log
+    setProductForm((prev) => {
+      const newImages = [...prev.images];
+      newImages[index] = file;
+      return { ...prev, images: newImages };
+    });
+    setImagePreviews((prev) => {
+      const newPreviews = [...prev];
+      newPreviews[index] = file ? URL.createObjectURL(file) : null;
+      return newPreviews;
+    });
+  };
+
+  const clearImage = (index: number) => {
+    setProductForm((prev) => {
+      const newImages = [...prev.images];
+      newImages[index] = null;
+      return { ...prev, images: newImages };
+    });
+    setImagePreviews((prev) => {
+      const newPreviews = [...prev];
+      newPreviews[index] = null;
+      return newPreviews;
+    });
+  };
+
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
@@ -62,7 +90,12 @@ const AdminPanel: React.FC = () => {
     formData.append('price', productForm.price.toString());
     formData.append('description', productForm.description);
     formData.append('categoryIds', JSON.stringify(productForm.categoryIds));
-    productForm.images.forEach((image) => formData.append('images', image));
+    productForm.images.forEach((image, index) => {
+      if (image) {
+        formData.append('images', image);
+        console.log(`Appending image ${index + 1}: ${image.name}`); // Debug log
+      }
+    });
 
     try {
       if (isEditingProduct) {
@@ -102,9 +135,10 @@ const AdminPanel: React.FC = () => {
       name: product.name,
       price: product.price,
       description: product.description,
-      images: [],
+      images: [null, null, null, null, null], // Reset images
       categoryIds: product.categories.map((cat) => cat.id),
     });
+    setImagePreviews([null, null, null, null, null]); // Clear previews
     setIsEditingProduct(true);
   };
 
@@ -132,7 +166,15 @@ const AdminPanel: React.FC = () => {
   };
 
   const resetProductForm = () => {
-    setProductForm({ id: 0, name: '', price: 0, description: '', images: [], categoryIds: [] });
+    setProductForm({
+      id: 0,
+      name: '',
+      price: 0,
+      description: '',
+      images: [null, null, null, null, null],
+      categoryIds: [],
+    });
+    setImagePreviews([null, null, null, null, null]);
     setIsEditingProduct(false);
   };
 
@@ -172,12 +214,35 @@ const AdminPanel: React.FC = () => {
             className="border p-2 w-full rounded"
             required
           />
-          <input
-            type="file"
-            multiple
-            onChange={(e) => setProductForm({ ...productForm, images: Array.from(e.target.files || []) })}
-            className="border p-2 w-full rounded"
-          />
+          <div>
+            <label className="block text-gray-700 mb-1">Product Images (up to 5)</label>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="mb-2 flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange(index)}
+                  className="border p-2 w-full rounded"
+                />
+                {imagePreviews[index] && (
+                  <>
+                    <img
+                      src={imagePreviews[index]!}
+                      alt={`Preview ${index + 1}`}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => clearImage(index)}
+                      className="bg-red-500 text-white p-1 rounded hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
           <select
             multiple
             value={productForm.categoryIds.map(String)}
@@ -247,14 +312,15 @@ const AdminPanel: React.FC = () => {
               <p>Price: ${product.price}</p>
               <p>{product.description.substring(0, 100)}...</p>
               <div className="flex gap-2">
-                {product.images.map((image, index) => (
-                  <Image
-                    key={index}
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
+                {product.images.length > 0 ? (
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`}
                     alt={product.name}
                     className="w-16 h-16 object-cover rounded"
                   />
-                ))}
+                ) : (
+                  <p className="text-gray-500">No image</p>
+                )}
               </div>
               <p>Categories: {product.categories.map((cat) => cat.name).join(', ')}</p>
               <button

@@ -28,6 +28,8 @@ export class ProductService {
 
     if (categoryIds && categoryIds.length > 0) {
       product.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
+    } else {
+      product.categories = [];
     }
 
     return this.productRepository.save(product);
@@ -60,15 +62,15 @@ export class ProductService {
     categoryIds: number[],
   ): Promise<Product> {
     const product = await this.findOne(id);
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.images = images;
-
+    product.name = name || product.name;
+    product.price = price || product.price;
+    product.description = description || product.description;
+    product.images = images.length > 0 ? images : product.images; // Preserve existing images if none provided
     if (categoryIds && categoryIds.length > 0) {
       product.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
+    } else {
+      product.categories = product.categories || [];
     }
-
     return this.productRepository.save(product);
   }
 

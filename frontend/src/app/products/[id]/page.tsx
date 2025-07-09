@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -42,11 +43,13 @@ const ProductPage: React.FC = () => {
       <p className="mb-4 text-gray-600">{product.description}</p>
       <div className="flex gap-4 mb-4">
         {product.images.map((image, index) => (
-          <img
+          <Image
             key={index}
             src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
             alt={product.name}
-            className="w-48 h-48 object-cover rounded"
+            width={192} // Matches w-48 (48 * 4 = 192px)
+            height={192} // Matches h-48 (48 * 4 = 192px)
+            className="object-cover rounded"
           />
         ))}
       </div>
