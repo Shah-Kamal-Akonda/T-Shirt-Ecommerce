@@ -9,16 +9,19 @@ export class Product {
   @Column()
   name: string;
 
-  @Column('decimal')
+  @Column('float')
   price: number;
 
-  @Column('text')
+  @Column()
   description: string;
 
-  @Column('simple-array')
+  @Column('jsonb')
   images: string[];
 
-  @ManyToMany(() => Category, (category) => category.products)
+  @Column('float', { nullable: true })
+  discount: number | null;
+
+  @ManyToMany(() => Category)
   @JoinTable()
   categories: Category[];
 }

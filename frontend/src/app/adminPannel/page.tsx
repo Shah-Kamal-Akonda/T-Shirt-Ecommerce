@@ -8,6 +8,7 @@ interface Product {
   price: number;
   description: string;
   images: string[];
+  discount: number | null;
   categories: { id: number; name: string }[];
 }
 
@@ -24,7 +25,8 @@ const AdminPanel: React.FC = () => {
     name: '',
     price: 0,
     description: '',
-    images: [null, null, null, null, null] as (File | null)[], // Array for up to 5 images
+    images: [null, null, null, null, null] as (File | null)[],
+    discount: null as number | null,
     categoryIds: [] as number[],
   });
   const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null, null, null, null, null]);
@@ -57,7 +59,7 @@ const AdminPanel: React.FC = () => {
 
   const handleImageChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    console.log(`Selected file for input ${index + 1}:`, file?.name || 'None'); // Debug log
+    console.log(`Selected file for input ${index + 1}:`, file?.name || 'None');
     setProductForm((prev) => {
       const newImages = [...prev.images];
       newImages[index] = file;
@@ -89,11 +91,14 @@ const AdminPanel: React.FC = () => {
     formData.append('name', productForm.name);
     formData.append('price', productForm.price.toString());
     formData.append('description', productForm.description);
+    if (productForm.discount !== null) {
+      formData.append('discount', productForm.discount.toString());
+    }
     formData.append('categoryIds', JSON.stringify(productForm.categoryIds));
     productForm.images.forEach((image, index) => {
       if (image) {
         formData.append('images', image);
-        console.log(`Appending image ${index + 1}: ${image.name}`); // Debug log
+        console.log(`Appending image ${index + 1}: ${image.name}`);
       }
     });
 
@@ -135,10 +140,11 @@ const AdminPanel: React.FC = () => {
       name: product.name,
       price: product.price,
       description: product.description,
-      images: [null, null, null, null, null], // Reset images
+      images: [null, null, null, null, null],
+      discount: product.discount,
       categoryIds: product.categories.map((cat) => cat.id),
     });
-    setImagePreviews([null, null, null, null, null]); // Clear previews
+    setImagePreviews([null, null, null, null, null]);
     setIsEditingProduct(true);
   };
 
@@ -172,6 +178,7 @@ const AdminPanel: React.FC = () => {
       price: 0,
       description: '',
       images: [null, null, null, null, null],
+      discount: null,
       categoryIds: [],
     });
     setImagePreviews([null, null, null, null, null]);
@@ -206,6 +213,18 @@ const AdminPanel: React.FC = () => {
             onChange={(e) => setProductForm({ ...productForm, price: parseFloat(e.target.value) })}
             className="border p-2 w-full rounded"
             required
+          />
+          <input
+            type="number"
+            placeholder="Discount (%)"
+            value={productForm.discount || ''}
+            onChange={(e) =>
+              setProductForm({
+                ...productForm,
+                discount: e.target.value ? parseFloat(e.target.value) : null,
+              })
+            }
+            className="border p-2 w-full rounded"
           />
           <textarea
             placeholder="Description"
@@ -309,7 +328,20 @@ const AdminPanel: React.FC = () => {
           {products.map((product) => (
             <div key={product.id} className="border p-4 rounded">
               <h3 className="text-lg font-semibold">{product.name}</h3>
-              <p>Price: ${product.price}</p>
+              <p>
+                Price:{' '}
+                {product.discount ? (
+                  <>
+                    <span className="line-through text-gray-400">${product.price.toFixed(2)}</span>
+                    <span className="text-green-600 ml-2">
+                      ${(product.price * (1 - product.discount / 100)).toFixed(2)}
+                    </span>
+                  </>
+                ) : (
+                  `$${product.price.toFixed(2)}`
+                )}
+              </p>
+              {product.discount && <p>Discount: {product.discount}%</p>}
               <p>{product.description.substring(0, 100)}...</p>
               <div className="flex gap-2">
                 {product.images.length > 0 ? (

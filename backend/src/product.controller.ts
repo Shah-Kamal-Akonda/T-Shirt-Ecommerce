@@ -27,13 +27,15 @@ export class ProductController {
     @Body('name') name: string,
     @Body('price') price: string,
     @Body('description') description: string,
+    @Body('discount') discount: string,
     @UploadedFiles() files: Express.Multer.File[],
     @Body('categoryIds') categoryIds: string,
   ) {
     const imagePaths = files.map((file) => `/Uploads/${file.filename}`);
     const parsedCategoryIds = JSON.parse(categoryIds);
     const parsedPrice = parseFloat(price);
-    return this.productService.createProduct(name, parsedPrice, description, imagePaths, parsedCategoryIds);
+    const parsedDiscount = discount ? parseFloat(discount) : null;
+    return this.productService.createProduct(name, parsedPrice, description, imagePaths, parsedDiscount, parsedCategoryIds);
   }
 
   @Get()
@@ -71,13 +73,15 @@ export class ProductController {
     @Body('name') name: string,
     @Body('price') price: string,
     @Body('description') description: string,
+    @Body('discount') discount: string,
     @UploadedFiles() files: Express.Multer.File[],
     @Body('categoryIds') categoryIds: string,
   ) {
     const imagePaths = files.map((file) => `/Uploads/${file.filename}`);
     const parsedCategoryIds = JSON.parse(categoryIds);
     const parsedPrice = parseFloat(price);
-    return this.productService.updateProduct(id, name, parsedPrice, description, imagePaths, parsedCategoryIds);
+    const parsedDiscount = discount ? parseFloat(discount) : null;
+    return this.productService.updateProduct(id, name, parsedPrice, description, imagePaths, parsedDiscount, parsedCategoryIds);
   }
 
   @Delete(':id')

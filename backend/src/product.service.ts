@@ -18,6 +18,7 @@ export class ProductService {
     price: number,
     description: string,
     images: string[],
+    discount: number | null,
     categoryIds: number[],
   ): Promise<Product> {
     const product = new Product();
@@ -25,6 +26,7 @@ export class ProductService {
     product.price = price;
     product.description = description;
     product.images = images;
+    product.discount = discount;
 
     if (categoryIds && categoryIds.length > 0) {
       product.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
@@ -59,13 +61,15 @@ export class ProductService {
     price: number,
     description: string,
     images: string[],
+    discount: number | null,
     categoryIds: number[],
   ): Promise<Product> {
     const product = await this.findOne(id);
     product.name = name || product.name;
     product.price = price || product.price;
     product.description = description || product.description;
-    product.images = images.length > 0 ? images : product.images; // Preserve existing images if none provided
+    product.images = images.length > 0 ? images : product.images;
+    product.discount = discount !== null ? discount : product.discount;
     if (categoryIds && categoryIds.length > 0) {
       product.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
     } else {
