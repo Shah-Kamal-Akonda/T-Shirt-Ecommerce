@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import ProductCard from '../../../components/ProductCard';
@@ -14,7 +14,7 @@ interface Product {
   categories: { id: number; name: string }[];
 }
 
-const SearchPage: React.FC = () => {
+const SearchComponent: React.FC = () => {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [products, setProducts] = useState<Product[]>([]);
@@ -58,5 +58,15 @@ const SearchPage: React.FC = () => {
     </div>
   );
 };
+
+// 🔸 Suspense দিয়ে wrap করা হয়েছে এই main export-এ
+const SearchPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div className="p-4">Loading search...</div>}>
+      <SearchComponent />
+    </Suspense>
+  );
+};
+
 
 export default SearchPage;
