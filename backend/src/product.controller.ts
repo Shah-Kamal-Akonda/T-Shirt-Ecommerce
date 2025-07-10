@@ -1,4 +1,15 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Patch,
+  Delete,
+  UseInterceptors,
+  UploadedFiles,
+  Query,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -43,15 +54,26 @@ export class ProductController {
     return this.productService.findAll();
   }
 
+  
+
   @Get('category/:id')
   async findByCategory(@Param('id') categoryId: number) {
     return this.productService.findByCategory(categoryId);
   }
 
+
+     @Get('search')
+  async search(@Query('name') name: string) {
+    return this.productService.searchProducts(name);
+  }
+
+
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.productService.findOne(id);
   }
+
+ 
 
   @Patch(':id')
   @UseInterceptors(

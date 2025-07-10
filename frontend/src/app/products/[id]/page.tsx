@@ -59,69 +59,110 @@ const ProductPage: React.FC = () => {
     : null;
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* Thumbnail Images */}
+    <div className=" mx-4 md:mx-6 my-8 md:m-12">
+      <div className="flex flex-row md:flex-row gap-4">
+       
+         {/* Thumbnail Images */}
         <div className="flex flex-col gap-2">
           {Array.isArray(product.images) && product.images.length > 0 ? (
             product.images.map((image, index) => (
-              <Image
-                key={index}
-                src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
-                alt={`${product.name} thumbnail ${index + 1}`}
-                width={80}
-                height={80}
-                className="object-cover rounded cursor-pointer hover:opacity-80"
-                onClick={() => setMainImage(image)}
-              />
+                       <div
+  key={index}
+  className="relative w-[45px] h-[40px] md:w-[50px] md:h-[45px] lg:w-[80px] lg:h-[70px] cursor-pointer hover:opacity-80"
+  onClick={() => setMainImage(image)}
+>
+  <Image
+    src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
+    alt={`${product.name} thumbnail ${index + 1}`}
+    fill
+    className="object-cover "
+  />
+</div>
+
             ))
           ) : (
             <p className="text-gray-500">No images available</p>
           )}
         </div>
+
+
+
         {/* Main Image */}
-        <div className="w-full md:w-1/2">
+        <div className="flex flex-col md:flex-row">
           {mainImage ? (
+
+
+         <div className="relative w-[200px] h-[130px] md:w-[330px] md:h-[230px] lg:w-[600px] lg:h-[400px]">
             <Image
-              src={`${process.env.NEXT_PUBLIC_API_URL}${mainImage}`}
-              alt={product.name}
-              width={400}
-              height={400}
-              className="object-cover rounded"
-            />
+            src={`${process.env.NEXT_PUBLIC_API_URL}${mainImage}`}
+             alt={product.name}
+             fill
+             className="object-cover "
+             />
+                </div>
+
+
+
           ) : (
             <p className="text-gray-500">No main image</p>
           )}
-        </div>
-        {/* Product Details */}
-        <div className="w-full md:w-1/4">
-          <h1 className="text-2xl font-bold mb-4 text-gray-800">{product.name}</h1>
-          <div className="flex gap-2 items-center">
-            <p className="text-lg font-semibold">
+
+
+
+            {/* Product Details */}
+        <div className="w-full lg:ml-12 md:ml-8 font-bold  mt-4 ">
+          <h1 className=" text-gray-800 text-[12px]  md:text-[17px] lg:text-[20px]">{product.name}</h1>
+          <div className="flex items-center gap-x-2 ">
+            <p className=" ">
               {discountedPrice ? (
                 <>
-                  <span className="line-through text-gray-400">${product.price.toFixed(2)}</span>
-                  <span className="text-green-600 ml-2">${discountedPrice}</span>
+                  <span className="line-through text-gray-400 text-[12px]  md:text-[17px] lg:text-[20px] mr-1">${product.price.toFixed(2)}</span>
+                   
+                  
+                  <span className="text-green-600 text-[12px]  md:text-[17px] lg:text-[20px]">${discountedPrice}</span>
                 </>
               ) : (
                 `$${product.price.toFixed(2)}`
               )}
             </p>
             {product.discount && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">
+              <span className="bg-red-500 text-white text-[12px]  md:text-[17px] lg:text-[20px] rounded p-1 md:p-2">
                 {product.discount}% OFF
               </span>
             )}
           </div>
-          <p className="mb-4 text-gray-600">{product.description}</p>
-          <p className="text-sm text-gray-500">
+          <p className=" text-gray-600 text-[12px]  md:text-[17px] lg:text-[20px]">{product.description}</p>
+          <p className=" text-gray-500 text-[12px]  md:text-[17px] lg:text-[20px]">
             Categories:{' '}
             {Array.isArray(product.categories) && product.categories.length > 0
               ? product.categories.map((cat) => cat.name).join(', ')
               : 'None'}
+
+
+              
           </p>
+
+
+          <div className='font-bold mt-4 md:mt-10 text-[12px] md:text-[14px] lg:text-[16px]'>
+                <button className='bg-green-600 text-white rounded-b-sm md:rounded-3xl p-1.5 md:p-3 mr-2'>Buy Now</button>
+                <button className='bg-orange-600 text-white rounded-b-sm md:rounded-3xl p-1.5 md:p-3 ml-2'>Add to Cart</button>
+              </div>
+
+            
         </div>
+
+
+
+        </div>
+
+
+       
+   
       </div>
+
+
+
+         
     </div>
   );
 };

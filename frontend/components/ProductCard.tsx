@@ -24,46 +24,64 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="border p-4 rounded hover:shadow-lg transition bg-white"
+      className=" p-4  hover:shadow-lg transition bg-white"
     >
-      <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
-      <div className="flex items-center gap-2">
-        <p className="text-gray-600">
+
+     <div className="relative   p-2  md:p-0 w-[130px] md:w-[230px] lg:w-[350px] h-[100px] md:h-[160px] lg:h-[280px] mt-2  overflow-hidden bg-white">
+  {Array.isArray(product.images) && product.images.length > 0 ? (
+    <Image
+      src={`${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`}
+      alt={product.name}
+      fill
+      className="object-cover"
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-center">
+      <p className="text-gray-400 text-sm px-2">No Image</p>
+    </div>
+  )}
+</div>
+
+
+
+      
+      <div className=" items-center gap-2">
+          <div>
+             <h3 className="text-[12px] md:text-[20px] font-bold text-gray-800 text-center">{product.name}</h3>
+          </div>
+
+
+        <p className="text-gray-600 text-left md:text-center space-x-1.5 md:space-x-3  ">
           {discountedPrice ? (
             <>
-              <span className="line-through text-gray-400">${product.price.toFixed(2)}</span>
-              <span className="text-green-600 font-bold ml-2">${discountedPrice}</span>
+              <span className="line-through text-gray-400 text-[12px] md:text-[20px] font-bold">${product.price.toFixed(2)}</span>
+              <span className="text-green-600 text-[12px] md:text-[20px] font-bold ">${discountedPrice}</span>
             </>
           ) : (
             `Price: $${product.price.toFixed(2)}`
           )}
-        </p>
-        {product.discount && (
-          <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">
-            {product.discount}% OFF
+
+
+
+           {product.discount && (
+          <span className="bg-red-600 text-white text-[12px] md:text-[16px]  p-0.5 md:p-2 rounded-2xl   ">
+            {product.discount}%
           </span>
         )}
+        </p>
+       
       </div>
-      <p className="text-sm text-gray-500">{product.description.substring(0, 100)}...</p>
-      <div className="flex gap-2 mt-2">
-        {Array.isArray(product.images) && product.images.length > 0 ? (
-          <Image
-            src={`${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`}
-            alt={product.name}
-            width={96}
-            height={96}
-            className="object-cover rounded"
-          />
-        ) : (
-          <p className="text-gray-500">No images available</p>
-        )}
-      </div>
-      <p className="text-sm text-gray-400 mt-2">
+           
+      {/* <p className="text-sm text-gray-500">{product.description.substring(0, 100)}...</p> */}
+     
+      {/* <p className="text-sm text-gray-400 mt-2">
         Categories:{' '}
         {Array.isArray(product.categories) && product.categories.length > 0
           ? product.categories.map((cat) => cat.name).join(', ')
           : 'None'}
-      </p>
+      </p> */}
+
+
     </Link>
   );
 };

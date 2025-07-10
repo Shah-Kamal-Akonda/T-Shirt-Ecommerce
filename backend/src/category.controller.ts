@@ -15,6 +15,8 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
+  
+ 
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.categoryService.findOne(id);
