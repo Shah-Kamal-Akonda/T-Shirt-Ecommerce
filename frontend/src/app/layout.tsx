@@ -1,18 +1,18 @@
-import './globals.css';
-import type { Metadata } from 'next';
+'use client';
+import CartIcon from '../../components/Carticon';
 import Navbar from '../../components/navbar';
-
-export const metadata: Metadata = {
-  title: 'MyShop',
-  description: 'An e-commerce platform',
-};
+import { CartProvider } from './context/CartContext';
+import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-gray-100">
-        <Navbar />
-        <main className="pt-16">{children}</main>
+        <CartProvider>
+          <Navbar />
+          <main className="pt-16">{children}</main>
+          <CartIcon />
+        </CartProvider>
       </body>
     </html>
   );
