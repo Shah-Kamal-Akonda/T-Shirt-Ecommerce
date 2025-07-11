@@ -193,15 +193,20 @@ const Navbar: React.FC = () => {
               </div>
             )}
           </form>
-          <Link href="/profile" className="text-gray-700 hover:text-blue-600">
-            <Image
-              src="/images/profile-icon.png"
+         
+           <div className='relative '>
+              <Image
+              src="/profile-icon.png"
               alt="Profile"
-              width={24}
+              width={44}
               height={24}
               className="rounded-full"
             />
-          </Link>
+           </div>
+
+           
+           
+         
         </div>
 
         {/* Mobile Menu Button */}
@@ -306,20 +311,21 @@ const Navbar: React.FC = () => {
                 </div>
               )}
             </form>
-            <Link
-              href="/profile"
-              className=" text-gray-700 hover:text-blue-600 font-medium flex items-center"
-              onClick={toggleMobileMenu}
-            >
+
+
+              
+              
               <Image
-                src="/images/profile-icon.png"
+                src="/profile-icon.png"
                 alt="Profile"
                 width={24}
                 height={24}
-                className="inline-block mr-2 rounded-full"
+                
               />
-              Profile
-            </Link>
+
+           
+
+           
           </div>
         </div>
       )}
