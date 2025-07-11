@@ -1,3 +1,7 @@
+import * as dotenv from 'dotenv';
+dotenv.config(); // ✅ MUST be called before using process.env
+
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';

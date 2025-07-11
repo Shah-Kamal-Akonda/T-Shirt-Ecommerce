@@ -82,7 +82,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   e.preventDefault(); // Prevent Link navigation
                   handleAddToCart();
                 }}
-                className="bg-green-500 text-white w-[120px] md:w-[200px] lg:w-[240px]  font-semibold rounded-2xl md:rounded-3xl lg:rounded-4xl p-1.5 md:p-2 text-[12px] md:text-[14px] lg:text-[16px] cursor-pointer"
+                className="bg-green-500 text-white w-[120px] md:w-[180px] lg:w-[240px]  font-semibold rounded-2xl md:rounded-3xl lg:rounded-4xl p-1.5 md:p-2 text-[12px] md:text-[14px] lg:text-[16px] cursor-pointer"
               >
                 Add to Cart
               </button>
@@ -93,12 +93,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     e.preventDefault(); // Prevent Link navigation
                     handleQuantityChange(quantity + 1);
                   }}
-                  className="bg-green-500 text-white px-2 py-1 rounded-2xl md:rounded-3xl lg:rounded-4xl font-bold text-[12px] md:text-[14px] lg:text-[20px]  p-1 md:p-2 lg:p-3 cursor-pointer"
+                  className="bg-green-500 text-white px-2 py-1  rounded-2xl md:rounded-3xl lg:rounded-4xl font-bold text-[12px] md:text-[14px] lg:text-[20px]  p-1 md:p-2 lg:p-3 cursor-pointer"
                   
                 >
                   +
                 </button>
-                <span className="px-2 py-1 text-center bg-green-500 text-white w-[70px] md:w-[180px] lg:w-[210px]  font-semibold rounded-2xl md:rounded-3xl lg:rounded-4xl p-1.5 md:p-2 text-[12px] md:text-[14px] lg:text-[16px] cursor-pointer">
+                <span className="px-2 py-1 text-center  bg-green-500 text-white w-[70px] md:w-[160px] lg:w-[210px]  font-semibold rounded-2xl md:rounded-3xl lg:rounded-4xl p-1.5 md:p-2 text-[12px] md:text-[14px] lg:text-[16px] cursor-pointer">
                   cart {quantity} in
                 </span>
                 <button

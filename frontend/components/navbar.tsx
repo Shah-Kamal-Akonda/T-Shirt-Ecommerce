@@ -5,6 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import SignUpPopup from './SignUpPopup';
+import LoginPopup from './LoginPopup';
 
 interface Product {
   id: number;
@@ -23,9 +25,13 @@ const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const searchRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLFormElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -66,13 +72,17 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     setSuggestions([]);
     setSearchQuery('');
+    setIsProfileOpen(false);
   }, [pathname]);
 
-  // Handle click outside to close suggestions
+  // Handle click outside to close suggestions and profile dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setSuggestions([]);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -103,6 +113,7 @@ const Navbar: React.FC = () => {
 
   const toggleProductsDropdown = () => setIsProductsOpen(!isProductsOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const toggleProfileDropdown = () => setIsProfileOpen(!isProfileOpen);
 
   return (
     <nav className="bg-white shadow-md fixed w-full z-50 top-0">
@@ -160,8 +171,8 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Search Bar and Profile Icon */}
-        <div className="hidden md:flex items-center space-x-4" ref={searchRef}>
-          <form onSubmit={handleSearchSubmit} className="relative">
+        <div className="hidden md:flex items-center space-x-4">
+          <form onSubmit={handleSearchSubmit} className="relative" ref={searchRef}>
             <input
               type="text"
               placeholder="Search products..."
@@ -193,20 +204,40 @@ const Navbar: React.FC = () => {
               </div>
             )}
           </form>
-         
-           <div className='relative '>
-              <Image
-              src="/profile-icon.png"
-              alt="Profile"
-              width={44}
-              height={24}
-              className="rounded-full"
-            />
-           </div>
 
-           
-           
-         
+          <div className="relative" ref={profileRef}>
+            <button onClick={toggleProfileDropdown}>
+              <Image
+                src="/profile-icon.png"
+                alt="Profile"
+                width={44}
+                height={24}
+                className="rounded-full"
+              />
+            </button>
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-10">
+                <button
+                  onClick={() => {
+                    setIsSignUpOpen(true);
+                    setIsProfileOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                >
+                  Sign Up
+                </button>
+                <button
+                  onClick={() => {
+                    setIsLoginOpen(true);
+                    setIsProfileOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                >
+                  Login
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -220,7 +251,7 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white shadow-md">
-          <div className="container mx-auto px-4 py-4 space-y-4" ref={searchRef}>
+          <div className="container mx-auto px-4 py-4 space-y-4">
             <Link
               href="/"
               className="block text-gray-700 hover:text-blue-600 font-medium"
@@ -279,7 +310,7 @@ const Navbar: React.FC = () => {
             >
               Contact
             </Link>
-            <form onSubmit={handleSearchSubmit} className="relative">
+            <form onSubmit={handleSearchSubmit} className="relative" ref={searchRef}>
               <input
                 type="text"
                 placeholder="Search products..."
@@ -311,24 +342,44 @@ const Navbar: React.FC = () => {
                 </div>
               )}
             </form>
-
-
-              
-              
-              <Image
-                src="/profile-icon.png"
-                alt="Profile"
-                width={24}
-                height={24}
-                
-              />
-
-           
-
-           
+            <div className="relative">
+              <button onClick={toggleProfileDropdown}>
+                <Image
+                  src="/profile-icon.png"
+                  alt="Profile"
+                  width={24}
+                  height={24}
+                />
+              </button>
+              {isProfileOpen && (
+                <div className="mt-2 w-48 bg-white shadow-lg rounded-md py-2">
+                  <button
+                    onClick={() => {
+                      setIsSignUpOpen(true);
+                      setIsProfileOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                  >
+                    Sign Up
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsLoginOpen(true);
+                      setIsProfileOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                  >
+                    Login
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
+
+      <SignUpPopup isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} />
+      <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </nav>
   );
 };
