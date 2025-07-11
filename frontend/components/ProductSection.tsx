@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import ProductCard from './ProductCard';
+import ProductCard from '../components/ProductCard';
 
 interface Product {
   id: number;
@@ -9,6 +9,7 @@ interface Product {
   price: number;
   description: string;
   images: string[];
+  discount: number | null;
   categories: { id: number; name: string }[];
 }
 
@@ -17,71 +18,67 @@ interface Category {
   name: string;
 }
 
-const ProductSection: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+const HomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [productsByCategory, setProductsByCategory] = useState<{ [key: number]: Product[] }>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategories();
-    fetchProducts();
+    const fetchCategoriesAndProducts = async () => {
+      try {
+        // Fetch all categories
+        const categoryResponse = await axios.get<Category[]>(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
+        const fetchedCategories = categoryResponse.data || [];
+        setCategories(fetchedCategories);
+
+        // Fetch products for each category
+        const productsMap: { [key: number]: Product[] } = {};
+        await Promise.all(
+          fetchedCategories.map(async (category) => {
+            const productResponse = await axios.get<Product[]>(
+              `${process.env.NEXT_PUBLIC_API_URL}/products/category/${category.id}`,
+            );
+            productsMap[category.id] = productResponse.data || [];
+          }),
+        );
+        setProductsByCategory(productsMap);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching categories or products:', error);
+        setCategories([]);
+        setProductsByCategory({});
+        setLoading(false);
+      }
+    };
+    fetchCategoriesAndProducts();
   }, []);
 
-  useEffect(() => {
-    if (selectedCategory) {
-      axios
-        .get<Product[]>(`${process.env.NEXT_PUBLIC_API_URL}/products/category/${selectedCategory}`)
-        .then((response) => setProducts(response.data))
-        .catch((error) => console.error('Error fetching products by category:', error));
-    } else {
-      fetchProducts();
-    }
-  }, [selectedCategory]);
+  if (loading) {
+    return <div className="container mx-auto p-4">Loading...</div>;
+  }
 
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get<Product[]>(`${process.env.NEXT_PUBLIC_API_URL}/products`);
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get<Category[]>(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  return (   
+  return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Products</h1>
-      <div className="mb-4">
-        <label className="mr-2 text-gray-700">Filter by Category:</label>
-        <select
-          onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
-          className="border p-2 rounded bg-white text-gray-700"
-        >
-          <option value="">All Products</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="grid grid-cols-2  md:grid-cols-3  lg:grid-cols-4 gap-1">
-        {products.length > 0 ? (
-          products.map((product) => <ProductCard key={product.id} product={product} />)
-        ) : (
-          <p className="text-gray-500">No products found.</p>
-        )}
-      </div>
+      {categories.length > 0 ? (
+        categories.map((category) => (
+          <div key={category.id} className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">{category.name}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 ">
+              {productsByCategory[category.id]?.length > 0 ? (
+                productsByCategory[category.id].map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))
+              ) : (
+                <p className="text-gray-500">No products found in this category.</p>
+              )}
+            </div>
+          </div>
+        ))
+      ) : (
+        <p className="text-gray-500">No categories available.</p>
+      )}
     </div>
   );
 };
 
-export default ProductSection;
+export default HomePage;
