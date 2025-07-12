@@ -7,6 +7,7 @@ import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/o
 import axios from 'axios';
 import SignUpPopup from './SignUpPopup';
 import LoginPopup from './LoginPopup';
+import { useAuth } from '@/app/context/AuthContext';
 
 interface Product {
   id: number;
@@ -28,6 +29,7 @@ const Navbar: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const searchRef = useRef<HTMLFormElement>(null);
@@ -112,6 +114,13 @@ const Navbar: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setIsProfileOpen(false);
+    router.push('/');
+  };
+
   const toggleProductsDropdown = () => setIsProductsOpen(!isProductsOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const toggleProfileDropdown = () => setIsProfileOpen(!isProfileOpen);
@@ -120,11 +129,11 @@ const Navbar: React.FC = () => {
     <nav className="bg-white shadow-md fixed w-full z-50 top-0">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold text-gray-800 hover:text-blue-600 transition">
-          MyShop
+        <Link href="/" className="text-2xl font-bold text-gray-800 hover:text-green-600 transition">
+          T-Shirt Ecommerce
         </Link>
 
-        {/* Search Bar and Profile Icon (Visible on all screens) */}
+        {/* Search Bar and Profile Icon */}
         <div className="flex items-center space-x-4">
           <form onSubmit={handleSearchSubmit} className="relative" ref={searchRef}>
             <input
@@ -132,7 +141,7 @@ const Navbar: React.FC = () => {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-32 sm:w-48 pl-10 pr-4 py-2 border rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-32 sm:w-48 pl-10 pr-4 py-2 border rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-600"
             />
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
             {suggestions.length > 0 && searchQuery.trim() && (
@@ -141,7 +150,7 @@ const Navbar: React.FC = () => {
                   <div
                     key={product.id}
                     onClick={() => handleSuggestionClick(product.name)}
-                    className="flex items-center px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                    className="flex items-center px-4 py-2 hover:bg-green-50 cursor-pointer"
                   >
                     {product.images[0] && (
                       <Image
@@ -171,24 +180,44 @@ const Navbar: React.FC = () => {
             </button>
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-10">
-                <button
-                  onClick={() => {
-                    setIsSignUpOpen(true);
-                    setIsProfileOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                >
-                  Sign Up
-                </button>
-                <button
-                  onClick={() => {
-                    setIsLoginOpen(true);
-                    setIsProfileOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                >
-                  Login
-                </button>
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsSignUpOpen(true);
+                        setIsProfileOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
+                    >
+                      Sign Up
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsLoginOpen(true);
+                        setIsProfileOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
+                    >
+                      Login
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -196,7 +225,7 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center">
-          <button onClick={toggleMobileMenu} className="text-gray-700 hover:text-blue-600">
+          <button onClick={toggleMobileMenu} className="text-gray-700 hover:text-green-600">
             {isMobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
           </button>
         </div>
@@ -208,7 +237,7 @@ const Navbar: React.FC = () => {
           <div className="container mx-auto px-4 py-4 space-y-4">
             <Link
               href="/"
-              className="block text-gray-700 hover:text-blue-600 font-medium"
+              className="block text-gray-700 hover:text-green-600 font-medium"
               onClick={toggleMobileMenu}
             >
               Home
@@ -216,7 +245,7 @@ const Navbar: React.FC = () => {
             <div>
               <button
                 onClick={toggleProductsDropdown}
-                className="text-gray-700 hover:text-blue-600 font-medium flex items-center"
+                className="text-gray-700 hover:text-green-600 font-medium flex items-center"
               >
                 Products
                 <svg
@@ -235,7 +264,7 @@ const Navbar: React.FC = () => {
                       <Link
                         key={category.id}
                         href={`/products/category/${category.id}`}
-                        className="block text-gray-700 hover:text-blue-600"
+                        className="block text-gray-700 hover:text-green-600"
                         onClick={() => {
                           setIsProductsOpen(false);
                           setIsMobileMenuOpen(false);
@@ -252,18 +281,59 @@ const Navbar: React.FC = () => {
             </div>
             <Link
               href="/about"
-              className="block text-gray-700 hover:text-blue-600 font-medium"
+              className="block text-gray-700 hover:text-green-600 font-medium"
               onClick={toggleMobileMenu}
             >
               About
             </Link>
             <Link
               href="/contact"
-              className="block text-gray-700 hover:text-blue-600 font-medium"
+              className="block text-gray-700 hover:text-green-600 font-medium"
               onClick={toggleMobileMenu}
             >
               Contact
             </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="block text-gray-700 hover:text-green-600 font-medium"
+                  onClick={toggleMobileMenu}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left text-gray-700 hover:text-green-600 font-medium"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => {
+                    setIsSignUpOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left text-gray-700 hover:text-green-600 font-medium"
+                >
+                  Sign Up
+                </button>
+                <button
+                  onClick={() => {
+                    setIsLoginOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left text-gray-700 hover:text-green-600 font-medium"
+                >
+                  Login
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

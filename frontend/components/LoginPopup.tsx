@@ -1,6 +1,8 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/context/AuthContext';
 
 interface LoginPopupProps {
   isOpen: boolean;
@@ -10,6 +12,7 @@ interface LoginPopupProps {
 interface LoginResponse {
   message: string;
   userId?: number;
+  token?: string;
 }
 
 interface ForgotPasswordResponse {
@@ -33,13 +36,17 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState<'login' | 'success' | 'error' | 'forgot' | 'verifyReset' | 'resetSuccess'>('login');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { setIsLoggedIn } = useAuth();
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       const response = await axios.post<LoginResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, { email, password });
-      if (response.data.message === 'Login successful') {
+      if (response.data.message === 'Login successful' && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        setIsLoggedIn(true); // Update AuthContext
         setStep('success');
         setErrorMessage('');
       }
@@ -102,8 +109,8 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0  backdrop-blur-sm	  flex items-center justify-center z-50  ">
-      <div className="bg-white p-2 md:p-4 lg:p-6  rounded-2xl border-2 md:border-4 border-green-500   w-[220px] md:w-[350px] lg:w-[400px] text-[12px]  md:text-[16px] lg:text[20px] relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
         <button onClick={handleClose} className="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -120,7 +127,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
                 required
                 disabled={isLoading}
               />
@@ -131,14 +138,14 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
                 required
                 disabled={isLoading}
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 disabled:bg-green-400"
               disabled={isLoading}
             >
               {isLoading ? 'Logging in...' : 'Login'}
@@ -146,7 +153,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={() => setStep('forgot')}
-              className="w-full text-blue-600 hover:text-blue-800 text-sm mt-2"
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
             >
               Forgot Password?
             </button>
@@ -164,14 +171,14 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
                 required
                 disabled={isLoading}
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 disabled:bg-green-400"
               disabled={isLoading}
             >
               {isLoading ? 'Sending...' : 'Send Reset Code'}
@@ -179,7 +186,8 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={() => setStep('login')}
-              className="w-full text-blue-600 hover:text-blue-800 text-sm mt-2"
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
+              disabled={isLoading}
             >
               Back to Login
             </button>
@@ -197,7 +205,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
                 required
                 disabled={isLoading}
                 placeholder="Enter 6-digit code"
@@ -209,7 +217,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
                 required
                 disabled={isLoading}
                 placeholder="Enter new password"
@@ -217,7 +225,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
             </div>
             <button
               type="submit"
-              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 disabled:bg-green-400"
               disabled={isLoading}
             >
               {isLoading ? 'Resetting...' : 'Reset Password'}
@@ -225,7 +233,8 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={() => setStep('login')}
-              className="w-full text-blue-600 hover:text-blue-800 text-sm mt-2"
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
+              disabled={isLoading}
             >
               Back to Login
             </button>
@@ -238,7 +247,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
             <p className="text-green-600">You have logged in successfully!</p>
             <button
               onClick={handleClose}
-              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
             >
               Close
             </button>
@@ -251,14 +260,14 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
             <p className="text-green-600">Your password has been reset successfully!</p>
             <button
               onClick={handleClose}
-              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
             >
               Close
             </button>
             <button
               type="button"
               onClick={() => setStep('login')}
-              className="w-full text-blue-600 hover:text-blue-800 text-sm mt-2"
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
             >
               Back to Login
             </button>
@@ -271,7 +280,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
             <p className="text-red-500 text-sm">{errorMessage}</p>
             <button
               onClick={() => setStep('login')}
-              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
             >
               Back to Login
             </button>
