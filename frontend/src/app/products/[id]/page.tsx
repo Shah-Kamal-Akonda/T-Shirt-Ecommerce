@@ -93,7 +93,7 @@ const ProductComponent: React.FC = () => {
 
   return (
     <div className="mx-4 md:mx-6 my-8 md:m-12">
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-row md:flex-row gap-4">
         {/* Thumbnail Images */}
         <div className="flex flex-col gap-2">
           {Array.isArray(product.images) && product.images.length > 0 ? (

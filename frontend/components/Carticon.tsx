@@ -12,10 +12,10 @@ const CartIcon: React.FC = () => {
     <>
       <button
         onClick={() => setIsCartOpen(!isCartOpen)}
-        className="fixed top-16 right-4 z-50 text-gray-700 hover:text-blue-600"
+        className="fixed top-26 md:top-20  right-4 z-50 text-gray-700 hover:text-blue-600"
       >
-        <ShoppingCartIcon className="h-8 w-8" />
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+        <ShoppingCartIcon className="h-8 w-8 md:h-12 md:w-12" />
+        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 md:h-7 md:w-7 flex items-center justify-center">
           {cartCount}
         </span>
       </button>

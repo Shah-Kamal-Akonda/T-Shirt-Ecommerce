@@ -77,8 +77,8 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+    <div className="fixed inset-0  backdrop-blur-sm	  flex items-center justify-center z-50  ">
+      <div className="bg-white p-2 md:p-4 lg:p-6  rounded-2xl border-2 md:border-4 border-green-500   w-[220px] md:w-[350px] lg:w-[400px] text-[12px]  md:text-[16px] lg:text[20px] relative">
         <button onClick={handleClose} className="absolute top-2 right-2 text-gray-600 hover:text-gray-800">
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -113,7 +113,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
               disabled={isLoading}
             >
               {isLoading ? 'Sending...' : 'Send Verification Code'}
@@ -139,7 +139,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
               disabled={isLoading}
             >
               {isLoading ? 'Verifying...' : 'Verify Code'}
@@ -153,7 +153,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
             <p className="text-green-600">Your account has been created successfully!</p>
             <button
               onClick={handleClose}
-              className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700"
             >
               Close
             </button>
@@ -166,7 +166,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
             <p className="text-red-500 text-sm">{errorMessage}</p>
             <button
               onClick={() => setStep('verify')}
-              className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+              className="w-full bg-green-600 text-white p-2 rounded hover:bg-blue-700"
             >
               Try Again
             </button>

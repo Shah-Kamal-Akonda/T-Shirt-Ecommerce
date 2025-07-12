@@ -68,11 +68,12 @@ const Navbar: React.FC = () => {
     return () => clearTimeout(debounce);
   }, [searchQuery]);
 
-  // Clear suggestions on navigation
+  // Clear suggestions and profile state on navigation
   useEffect(() => {
     setSuggestions([]);
     setSearchQuery('');
     setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
   }, [pathname]);
 
   // Handle click outside to close suggestions and profile dropdown
@@ -123,66 +124,19 @@ const Navbar: React.FC = () => {
           MyShop
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-6">
-          <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium transition">
-            Home
-          </Link>
-          <div className="relative">
-            <button
-              onClick={toggleProductsDropdown}
-              className="text-gray-700 hover:text-blue-600 font-medium transition flex items-center"
-            >
-              Products
-              <svg
-                className={`ml-1 h-5 w-5 transform ${isProductsOpen ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {isProductsOpen && (
-              <div className="absolute mt-2 w-48 bg-white shadow-lg rounded-md py-2">
-                {categories.length > 0 ? (
-                  categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      href={`/products/category/${category.id}`}
-                      className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                      onClick={() => setIsProductsOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  ))
-                ) : (
-                  <div className="px-4 py-2 text-gray-500">No categories available</div>
-                )}
-              </div>
-            )}
-          </div>
-          <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition">
-            About
-          </Link>
-          <Link href="/contact" className="text-gray-700 hover:text-blue-600 font-medium transition">
-            Contact
-          </Link>
-        </div>
-
-        {/* Search Bar and Profile Icon */}
-        <div className="hidden md:flex items-center space-x-4">
+        {/* Search Bar and Profile Icon (Visible on all screens) */}
+        <div className="flex items-center space-x-4">
           <form onSubmit={handleSearchSubmit} className="relative" ref={searchRef}>
             <input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-48 pl-10 pr-4 py-2 border rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-32 sm:w-48 pl-10 pr-4 py-2 border rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
             {suggestions.length > 0 && searchQuery.trim() && (
-              <div className="absolute mt-12 w-64 bg-white shadow-lg rounded-md py-2 z-10 max-h-60 overflow-y-auto">
+              <div className="absolute mt-2 w-64 bg-white shadow-lg rounded-md py-2 z-10 max-h-60 overflow-y-auto">
                 {suggestions.map((product) => (
                   <div
                     key={product.id}
@@ -210,7 +164,7 @@ const Navbar: React.FC = () => {
               <Image
                 src="/profile-icon.png"
                 alt="Profile"
-                width={44}
+                width={24}
                 height={24}
                 className="rounded-full"
               />
@@ -310,70 +264,6 @@ const Navbar: React.FC = () => {
             >
               Contact
             </Link>
-            <form onSubmit={handleSearchSubmit} className="relative" ref={searchRef}>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
-              {suggestions.length > 0 && searchQuery.trim() && (
-                <div className="mt-2 w-full bg-white shadow-lg rounded-md py-2 z-10 max-h-60 overflow-y-auto">
-                  {suggestions.map((product) => (
-                    <div
-                      key={product.id}
-                      onClick={() => handleSuggestionClick(product.name)}
-                      className="flex items-center px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                    >
-                      {product.images[0] && (
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`}
-                          alt={product.name}
-                          width={40}
-                          height={40}
-                          className="mr-3 rounded"
-                        />
-                      )}
-                      <span className="text-gray-700">{product.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </form>
-            <div className="relative">
-              <button onClick={toggleProfileDropdown}>
-                <Image
-                  src="/profile-icon.png"
-                  alt="Profile"
-                  width={24}
-                  height={24}
-                />
-              </button>
-              {isProfileOpen && (
-                <div className="mt-2 w-48 bg-white shadow-lg rounded-md py-2">
-                  <button
-                    onClick={() => {
-                      setIsSignUpOpen(true);
-                      setIsProfileOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    Sign Up
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsLoginOpen(true);
-                      setIsProfileOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    Login
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       )}
