@@ -36,7 +36,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState<'login' | 'success' | 'error' | 'forgot' | 'verifyReset' | 'resetSuccess'>('login');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+//   const router = useRouter();
   const { setIsLoggedIn } = useAuth();
 
   const handleLoginSubmit = async (e: React.FormEvent) => {

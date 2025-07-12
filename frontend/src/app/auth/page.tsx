@@ -20,10 +20,10 @@ interface Address {
   mobileNumber: string;
 }
 
-interface ErrorResponse {
-  message: string;
-  statusCode?: number;
-}
+// interface ErrorResponse {
+//   message: string;
+//   statusCode?: number;
+// }
 
 const AuthPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
