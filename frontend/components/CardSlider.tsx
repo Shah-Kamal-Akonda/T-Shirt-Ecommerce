@@ -37,7 +37,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         {cart.length > 0 ? (
           <div className="space-y-4">
             {cart.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 border-b pb-4">
+              <div key={`${item.id}-${item.size}`} className="flex items-center gap-4 border-b pb-4"> {/* ADD HERE: Use id and size for key */}
                 <div className="relative w-16 h-16">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_API_URL}${item.image}`}
@@ -48,6 +48,8 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-gray-800 font-medium text-sm">{item.name}</h3>
+                  {/* ADD HERE: Display selected size */}
+                  <p className="text-gray-600 text-sm">Size: {item.size}</p>
                   <p className="text-gray-600 text-sm">
                     {item.discount ? (
                       <>
@@ -65,7 +67,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                   </p>
                   <div className="flex items-center mt-2">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.size)} // ADD HERE: Pass size
                       className="bg-gray-200 text-gray-800 px-2 py-1 rounded-l text-sm"
                     >
                       –
@@ -74,13 +76,13 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.size)} // ADD HERE: Pass size
                       className="bg-gray-200 text-gray-800 px-2 py-1 rounded-r text-sm"
                     >
                       +
                     </button>
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item.id, item.size)} // ADD HERE: Pass size
                       className="ml-4 text-red-600 text-sm"
                     >
                       Remove

@@ -129,21 +129,84 @@ const Navbar: React.FC = () => {
     <nav className="bg-white shadow-md fixed w-full z-50 top-0">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold text-gray-800 hover:text-green-600 transition">
+        <Link href="/" className=" font-bold text-gray-800  text-[10px] md:text-[16px] lg:text-[24px] hover:text-green-600 transition">
           T-Shirt Ecommerce
         </Link>
 
+        
+        <div className='hidden md:flex flex-row md:space-x-5 lg:space-x-8 md:text-[12px] lg:text-[20px]'>
+                 <Link
+              href="/" 
+              className="block text-gray-700 hover:text-green-600 font-medium"
+              onClick={toggleMobileMenu}
+            >
+              Home
+            </Link>
+            <div>
+              <button
+                onClick={toggleProductsDropdown}
+                className="text-gray-700 hover:text-green-600 font-medium flex items-center"
+              >
+                Products
+                <svg
+                  className={`ml-1  md:h-4 md:w-3 lg:w-5 lg:h-5 transform ${isProductsOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {isProductsOpen && (
+                <div className="absolute top-full  shadow-md  space-y-2   p-2">
+                  {categories.length > 0 ? (
+                    categories.map((category) => (
+                      <Link
+                        key={category.id}
+                        href={`/products/category/${category.id}`}
+                        className="block text-gray-500 hover:text-black bg-white "
+                        onClick={() => {
+                          setIsProductsOpen(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        {category.name}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-gray-500">No categories available</div>
+                  )}
+                </div>
+              )}
+            </div>
+            <Link
+              href="/about"
+              className="block text-gray-700 hover:text-green-600 font-medium"
+              onClick={toggleMobileMenu}
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="block text-gray-700 hover:text-green-600 font-medium"
+              onClick={toggleMobileMenu}
+            >
+              Contact
+            </Link>
+
+        </div>
+
         {/* Search Bar and Profile Icon */}
-        <div className="flex items-center space-x-4">
-          <form onSubmit={handleSearchSubmit} className="relative" ref={searchRef}>
+        <div className="flex items-center space-x-1 md:space-x-4 ">
+          <form onSubmit={handleSearchSubmit} className="relative mr-4 md:mr-8  " ref={searchRef}>
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-32 sm:w-48 pl-10 pr-4 py-2 border rounded-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-600"
+              className="w-23  h-8 md:w-38 md:h-10 lg:w-40 lg:h-12 pl-10   pr-0.5 md:pr-4 py-2 border rounded-full text-[12px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-600"
             />
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500  "  />
             {suggestions.length > 0 && searchQuery.trim() && (
               <div className="absolute mt-2 w-64 bg-white shadow-lg rounded-md py-2 z-10 max-h-60 overflow-y-auto">
                 {suggestions.map((product) => (
@@ -168,7 +231,7 @@ const Navbar: React.FC = () => {
             )}
           </form>
 
-          <div className="relative" ref={profileRef}>
+          <div className="relative " ref={profileRef}>
             <button onClick={toggleProfileDropdown}>
               <Image
                 src="/profile-icon.png"
@@ -224,7 +287,7 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center">
+        <div className="md:hidden flex items-center mr-6">
           <button onClick={toggleMobileMenu} className="text-gray-700 hover:text-green-600">
             {isMobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
           </button>

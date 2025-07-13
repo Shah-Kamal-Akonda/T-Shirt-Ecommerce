@@ -8,13 +8,14 @@ interface CartItem {
   image: string;
   quantity: number;
   discount: number | null | undefined;
+  size: string; // ADD HERE: Added size to CartItem to support size selection
 }
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  removeFromCart: (id: number) => void;
+  updateQuantity: (id: number, quantity: number, size: string) => void; // ADD HERE: Added size parameter
+  removeFromCart: (id: number, size: string) => void; // ADD HERE: Added size parameter
   cartCount: number;
   toggleCart: () => void;
   isCartOpen: boolean;
@@ -28,10 +29,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const addToCart = (item: CartItem) => {
     setCart((prev) => {
-      const existingItem = prev.find((cartItem) => cartItem.id === item.id);
+      // ADD HERE: Match by both id and size
+      const existingItem = prev.find((cartItem) => cartItem.id === item.id && cartItem.size === item.size);
       if (existingItem) {
         return prev.map((cartItem) =>
-          cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + item.quantity } : cartItem,
+          cartItem.id === item.id && cartItem.size === item.size
+            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+            : cartItem,
         );
       }
       return [...prev, item];
@@ -39,15 +43,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsCartOpen(true); // Open slider on add to cart
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: number, quantity: number, size: string) => {
     if (quantity < 1) return;
     setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
+      prev.map((item) =>
+        item.id === id && item.size === size ? { ...item, quantity } : item,
+      ),
     );
   };
 
-  const removeFromCart = (id: number) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (id: number, size: string) => {
+    setCart((prev) => prev.filter((item) => !(item.id === id && item.size === size)));
   };
 
   const toggleCart = () => {

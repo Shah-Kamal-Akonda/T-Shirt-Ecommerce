@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Param,
-  Patch,
-  Delete,
-  UseInterceptors,
-  UploadedFiles,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -39,6 +28,7 @@ export class ProductController {
     @Body('price') price: string,
     @Body('description') description: string,
     @Body('discount') discount: string,
+    @Body('sizes') sizes: string, // ADD HERE: Accept sizes as JSON string
     @UploadedFiles() files: Express.Multer.File[],
     @Body('categoryIds') categoryIds: string,
   ) {
@@ -46,7 +36,9 @@ export class ProductController {
     const parsedCategoryIds = JSON.parse(categoryIds);
     const parsedPrice = parseFloat(price);
     const parsedDiscount = discount ? parseFloat(discount) : null;
-    return this.productService.createProduct(name, parsedPrice, description, imagePaths, parsedDiscount, parsedCategoryIds);
+    // ADD HERE: Parse sizes JSON string
+    const parsedSizes = sizes ? JSON.parse(sizes) : null;
+    return this.productService.createProduct(name, parsedPrice, description, imagePaths, parsedDiscount, parsedSizes, parsedCategoryIds);
   }
 
   @Get()
@@ -54,28 +46,22 @@ export class ProductController {
     return this.productService.findAll();
   }
 
-  
-
   @Get('category/:id')
   async findByCategory(@Param('id') categoryId: number) {
     return this.productService.findByCategory(categoryId);
   }
 
-
-     @Get('search')
-  async search(@Query('name') name: string) {
-    return this.productService.searchProducts(name);
+  @Get('search')
+  async search(@Query('name') name: string, @Query('size') size?: string) { // ADD HERE: Add size query param
+    return this.productService.searchProducts(name, size);
   }
-
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.productService.findOne(id);
   }
 
- 
-
-  @Patch(':id')
+  @Put(':id') // CHANGE HERE: Replaced @Patch with @Put to fix Cannot find name 'Patch'.ts(2304)
   @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({
@@ -96,6 +82,7 @@ export class ProductController {
     @Body('price') price: string,
     @Body('description') description: string,
     @Body('discount') discount: string,
+    @Body('sizes') sizes: string, // ADD HERE: Accept sizes as JSON string
     @UploadedFiles() files: Express.Multer.File[],
     @Body('categoryIds') categoryIds: string,
   ) {
@@ -103,7 +90,9 @@ export class ProductController {
     const parsedCategoryIds = JSON.parse(categoryIds);
     const parsedPrice = parseFloat(price);
     const parsedDiscount = discount ? parseFloat(discount) : null;
-    return this.productService.updateProduct(id, name, parsedPrice, description, imagePaths, parsedDiscount, parsedCategoryIds);
+    // ADD HERE: Parse sizes JSON string
+    const parsedSizes = sizes ? JSON.parse(sizes) : null;
+    return this.productService.updateProduct(id, name, parsedPrice, description, imagePaths, parsedDiscount, parsedSizes, parsedCategoryIds);
   }
 
   @Delete(':id')

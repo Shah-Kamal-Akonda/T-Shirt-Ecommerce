@@ -19,6 +19,7 @@ export class ProductService {
     description: string,
     images: string[],
     discount: number | null,
+    sizes: string[] | null, // ADD HERE: Added sizes parameter
     categoryIds: number[],
   ): Promise<Product> {
     try {
@@ -28,6 +29,8 @@ export class ProductService {
       product.description = description;
       product.images = images;
       product.discount = discount;
+      // ADD HERE: Assign sizes to product
+      product.sizes = sizes;
 
       if (categoryIds && categoryIds.length > 0) {
         product.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
@@ -71,15 +74,22 @@ export class ProductService {
     }
   }
 
-  async searchProducts(name: string): Promise<Product[]> {
+  async searchProducts(name: string, size?: string): Promise<Product[]> { // ADD HERE: Added size parameter
     try {
-      if (!name || name.trim() === '') {
+      if (!name && !size) {
         return [];
       }
-      // Sanitize input to prevent SQL injection or query errors
-      const sanitizedName = name.replace(/[%_\\]/g, '\\$&');
+      const where: any = {};
+      if (name) {
+        const sanitizedName = name.replace(/[%_\\]/g, '\\$&');
+        where.name = Like(`%${sanitizedName}%`);
+      }
+      // ADD HERE: Filter by size using ANY for PostgreSQL array
+      if (size) {
+        where.sizes = Like(`%${size}%`);
+      }
       return await this.productRepository.find({
-        where: { name: Like(`%${sanitizedName}%`) },
+        where,
         relations: ['categories'],
       });
     } catch (error) {
@@ -94,6 +104,7 @@ export class ProductService {
     description: string,
     images: string[],
     discount: number | null,
+    sizes: string[] | null, // ADD HERE: Added sizes parameter
     categoryIds: number[],
   ): Promise<Product> {
     try {
@@ -103,10 +114,10 @@ export class ProductService {
       product.description = description || product.description;
       product.images = images.length > 0 ? images : product.images;
       product.discount = discount !== null ? discount : product.discount;
+      // ADD HERE: Update sizes
+      product.sizes = sizes !== null ? sizes : product.sizes;
       if (categoryIds && categoryIds.length > 0) {
         product.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
-      } else {
-        product.categories = product.categories || [];
       }
       return await this.productRepository.save(product);
     } catch (error) {
@@ -122,8 +133,4 @@ export class ProductService {
       throw new InternalServerErrorException(`Failed to delete product: ${error.message}`);
     }
   }
-
-  
-
-  
 }

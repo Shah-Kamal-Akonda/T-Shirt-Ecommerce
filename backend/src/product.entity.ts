@@ -21,6 +21,10 @@ export class Product {
   @Column('float', { nullable: true })
   discount: number | null;
 
+   // ADD HERE: Added sizes field to store available sizes (e.g., ["S", "M", "L"])
+  @Column('varchar', { array: true, nullable: true })
+  sizes: string[] | null;
+
   @ManyToMany(() => Category)
   @JoinTable()
   categories: Category[];

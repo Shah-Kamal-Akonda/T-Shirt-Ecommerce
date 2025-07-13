@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect,Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
@@ -11,7 +11,8 @@ interface Product {
   price: number;
   description: string;
   images: string[] | null | undefined;
-   discount: number | null;
+  discount: number | null;
+  sizes: string[] | null;
   categories: { id: number; name: string }[] | null | undefined;
 }
 
@@ -21,6 +22,7 @@ const ProductComponent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string>('');
   const { addToCart, updateQuantity, cart, toggleCart } = useCart();
 
   useEffect(() => {
@@ -38,12 +40,12 @@ const ProductComponent: React.FC = () => {
               description: productData.description || 'No description',
               images: Array.isArray(productData.images) ? productData.images : [],
               discount: productData.discount || null,
+              sizes: Array.isArray(productData.sizes) ? productData.sizes : null,
               categories: Array.isArray(productData.categories) ? productData.categories : [],
             };
             setProduct(sanitizedProduct);
             setMainImage(sanitizedProduct.images[0] || null);
-            // Sync quantity with cart
-            const cartItem = cart.find((item) => item.id === sanitizedProduct.id);
+            const cartItem = cart.find((item) => item.id === sanitizedProduct.id && item.size === selectedSize);
             setQuantity(cartItem ? cartItem.quantity : 1);
           } else {
             setProduct(null);
@@ -55,22 +57,25 @@ const ProductComponent: React.FC = () => {
           setLoading(false);
         });
     }
-  }, [id, cart]);
+  }, [id, cart, selectedSize]);
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
     setQuantity(newQuantity);
     if (product) {
-      const cartItem = cart.find((item) => item.id === product.id);
+      const size = selectedSize || 'N/A';
+      const cartItem = cart.find((item) => item.id === product.id && item.size === size);
       if (cartItem) {
-        // If product is in cart, update cart quantity immediately
-        updateQuantity(product.id, newQuantity);
+        updateQuantity(product.id, newQuantity, size);
       }
-      // If not in cart, local quantity will be used when adding to cart
     }
   };
 
   const handleAddToCart = () => {
+    if (product && product.sizes && product.sizes.length > 0 && !selectedSize) {
+      alert('Please select a size before adding to cart.');
+      return;
+    }
     if (product && product.images && product.images[0]) {
       addToCart({
         id: product.id,
@@ -79,8 +84,9 @@ const ProductComponent: React.FC = () => {
         image: product.images[0],
         quantity,
         discount: product.discount,
+        size: selectedSize || 'N/A',
       });
-      toggleCart(); // Open slider
+      toggleCart();
     }
   };
 
@@ -93,7 +99,7 @@ const ProductComponent: React.FC = () => {
 
   return (
     <div className="mx-4 md:mx-6 my-8 md:m-12">
-      <div className="flex flex-row md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         {/* Thumbnail Images */}
         <div className="flex flex-col gap-2">
           {Array.isArray(product.images) && product.images.length > 0 ? (
@@ -156,13 +162,35 @@ const ProductComponent: React.FC = () => {
               )}
             </div>
             <p className="text-gray-600 text-[12px] md:text-[17px] lg:text-[20px]">{product.description}</p>
-            <p className="text-gray-500 text-[12px] md:text-[17px] lg:text-[20px]">
+            {/* CHANGE HERE: Moved size display and selection below description */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="mt-4">
+                <p className="text-gray-600 text-[12px] md:text-[17px] lg:text-[20px]">
+                  Available Sizes: {product.sizes.join(', ')}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`border px-3 py-1 rounded text-[12px] md:text-[14px] lg:text-[16px] ${
+                        selectedSize === size
+                          ? 'bg-green-600 text-white border-green-600'
+                          : 'bg-white text-gray-800 border-gray-300 hover:bg-green-100'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <p className="text-gray-500 text-[12px] md:text-[17px] lg:text-[20px] mt-2">
               Categories:{' '}
               {Array.isArray(product.categories) && product.categories.length > 0
                 ? product.categories.map((cat) => cat.name).join(', ')
                 : 'None'}
             </p>
-
             {/* Quantity Selector */}
             <div className="mt-4 md:mt-6">
               <label className="text-gray-800 text-[12px] md:text-[14px] lg:text-[16px] font-bold">
@@ -186,7 +214,6 @@ const ProductComponent: React.FC = () => {
                 </button>
               </div>
             </div>
-
             {/* Action Buttons */}
             <div className="font-bold mt-4 md:mt-6 text-[12px] md:text-[14px] lg:text-[16px]">
               <button className="bg-green-600 text-white rounded-b-sm p-1.5 md:p-3 mr-2">
@@ -206,11 +233,9 @@ const ProductComponent: React.FC = () => {
   );
 };
 
-
-
 const ProductPage: React.FC = () => {
   return (
-    <Suspense fallback={<div className="p-4">Loading search...</div>}>
+    <Suspense fallback={<div className="p-4">Loading product...</div>}>
       <ProductComponent />
     </Suspense>
   );

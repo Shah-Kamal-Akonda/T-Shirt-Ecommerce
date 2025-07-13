@@ -9,6 +9,7 @@ interface Product {
   description: string;
   images: string[];
   discount: number | null;
+  sizes: string[] | null; // ADD HERE: Added sizes to Product interface
   categories: { id: number; name: string }[];
 }
 
@@ -28,6 +29,7 @@ const AdminPanel: React.FC = () => {
     images: [null, null, null, null, null] as (File | null)[],
     discount: null as number | null,
     categoryIds: [] as number[],
+    sizes: ['', '', '', '', ''] as string[], // ADD HERE: Added sizes array for 5 inputs
   });
   const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null, null, null, null, null]);
   const [isEditingProduct, setIsEditingProduct] = useState(false);
@@ -85,6 +87,13 @@ const AdminPanel: React.FC = () => {
     });
   };
 
+  // ADD HERE: Handle size input changes
+  const handleSizeChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSizes = [...productForm.sizes];
+    newSizes[index] = e.target.value;
+    setProductForm({ ...productForm, sizes: newSizes });
+  };
+
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
@@ -95,6 +104,11 @@ const AdminPanel: React.FC = () => {
       formData.append('discount', productForm.discount.toString());
     }
     formData.append('categoryIds', JSON.stringify(productForm.categoryIds));
+    // ADD HERE: Append non-empty sizes as JSON string
+    const validSizes = productForm.sizes.filter((size) => size.trim() !== '');
+    if (validSizes.length > 0) {
+      formData.append('sizes', JSON.stringify(validSizes));
+    }
     productForm.images.forEach((image, index) => {
       if (image) {
         formData.append('images', image);
@@ -104,7 +118,8 @@ const AdminPanel: React.FC = () => {
 
     try {
       if (isEditingProduct) {
-        await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productForm.id}`, formData);
+        // FIX HERE: Changed patch to put to match ProductController
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/products/${productForm.id}`, formData);
       } else {
         await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/products`, formData);
       }
@@ -135,6 +150,8 @@ const AdminPanel: React.FC = () => {
   };
 
   const handleProductEdit = (product: Product) => {
+    // CHANGE HERE: Populate sizes for editing
+    const sizes = product.sizes && product.sizes.length > 0 ? [...product.sizes, ...Array(5 - product.sizes.length).fill('')] : ['', '', '', '', ''];
     setProductForm({
       id: product.id,
       name: product.name,
@@ -143,6 +160,7 @@ const AdminPanel: React.FC = () => {
       images: [null, null, null, null, null],
       discount: product.discount,
       categoryIds: product.categories.map((cat) => cat.id),
+      sizes,
     });
     setImagePreviews([null, null, null, null, null]);
     setIsEditingProduct(true);
@@ -180,6 +198,7 @@ const AdminPanel: React.FC = () => {
       images: [null, null, null, null, null],
       discount: null,
       categoryIds: [],
+      sizes: ['', '', '', '', ''], // ADD HERE: Reset sizes
     });
     setImagePreviews([null, null, null, null, null]);
     setIsEditingProduct(false);
@@ -233,6 +252,21 @@ const AdminPanel: React.FC = () => {
             className="border p-2 w-full rounded"
             required
           />
+          {/* ADD HERE: Size input fields */}
+          <div>
+            <label className="block text-gray-700 mb-1">Sizes (up to 5)</label>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="mb-2">
+                <input
+                  type="text"
+                  placeholder={`Size ${index + 1} (e.g., S, M, L)`}
+                  value={productForm.sizes[index]}
+                  onChange={handleSizeChange(index)}
+                  className="border p-2 w-full rounded"
+                />
+              </div>
+            ))}
+          </div>
           <div>
             <label className="block text-gray-700 mb-1">Product Images (up to 5)</label>
             {Array.from({ length: 5 }).map((_, index) => (
@@ -342,6 +376,10 @@ const AdminPanel: React.FC = () => {
                 )}
               </p>
               {product.discount && <p>Discount: {product.discount}%</p>}
+              {/* ADD HERE: Display sizes */}
+              {product.sizes && product.sizes.length > 0 && (
+                <p>Sizes: {product.sizes.join(', ')}</p>
+              )}
               <p>{product.description.substring(0, 100)}...</p>
               <div className="flex gap-2">
                 {product.images.length > 0 ? (
