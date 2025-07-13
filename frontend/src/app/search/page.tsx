@@ -52,7 +52,7 @@ const SearchComponent: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">
-        Search Results for "{query}"
+        Search Results for  &quot;"{query}"&quot;
       </h1>
       {/* ADD HERE: Size filter dropdown */}
       <div className="mb-6">
