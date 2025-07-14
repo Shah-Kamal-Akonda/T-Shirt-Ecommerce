@@ -65,7 +65,8 @@ const HomePage: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       {/* ADD HERE: Size filter dropdown */}
-      {/* <div className="mb-6">
+      {/* this part is hiiden by use Hidden */}
+      <div className="mb-6 hidden">
         <select
           value={sizeFilter}
           onChange={(e) => setSizeFilter(e.target.value)}
@@ -78,7 +79,7 @@ const HomePage: React.FC = () => {
           <option value="XL">XL</option>
           <option value="XXL">XXL</option>
         </select>
-      </div> */}
+      </div>
 
       {categories.length > 0 ? (
         categories.map((category) => (
