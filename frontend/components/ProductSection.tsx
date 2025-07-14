@@ -65,7 +65,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       {/* ADD HERE: Size filter dropdown */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <select
           value={sizeFilter}
           onChange={(e) => setSizeFilter(e.target.value)}
@@ -78,12 +78,12 @@ const HomePage: React.FC = () => {
           <option value="XL">XL</option>
           <option value="XXL">XXL</option>
         </select>
-      </div>
+      </div> */}
 
       {categories.length > 0 ? (
         categories.map((category) => (
           <div key={category.id} className="mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">{category.name}</h2>
+            <h2 className="text-2xl text-center font-bold my-6 text-gray-800">{category.name}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
               {productsByCategory[category.id]?.length > 0 ? (
                 productsByCategory[category.id].map((product) => (

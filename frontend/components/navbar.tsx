@@ -145,7 +145,7 @@ const Navbar: React.FC = () => {
             <div>
               <button
                 onClick={toggleProductsDropdown}
-                className="text-gray-700 hover:text-green-600 font-medium flex items-center"
+                className="text-gray-700  hover:text-green-600 font-medium flex items-center"
               >
                 Products
                 <svg

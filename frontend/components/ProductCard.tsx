@@ -119,7 +119,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <select
               value={selectedSize}
               onChange={(e) => setSelectedSize(e.target.value)}
-              className="bg-green-500 text-white rounded-sm md:rounded-sm lg:rounded-b-md  lg:p-1 text-sm  focus:outline-none font-semibold text-[10px] md:text-[14px] lg:text-[20px] w-[70px] md:w-[90px] lg:w-[130px]  h-[25px] md:h-[28] lg:h-[30px]"
+              className="bg-green-500 text-white rounded-r-sm md:rounded-r-sm lg:rounded-r-md  lg:p-1 text-sm  focus:outline-none font-semibold text-[10px] md:text-[14px] lg:text-[20px] w-[70px] md:w-[90px] lg:w-[130px]  h-[25px] md:h-[28] lg:h-[30px]"
             >
               <option value="">select size</option>
               {product.sizes.map((size) => (

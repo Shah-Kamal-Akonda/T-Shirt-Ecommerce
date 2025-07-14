@@ -60,7 +60,7 @@ const CategoryPage: React.FC = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">{categoryName} Products</h1>
       {/* ADD HERE: Size filter dropdown */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <select
           value={sizeFilter}
           onChange={(e) => setSizeFilter(e.target.value)}
@@ -73,7 +73,7 @@ const CategoryPage: React.FC = () => {
           <option value="XL">XL</option>
           <option value="XXL">XXL</option>
         </select>
-      </div>
+      </div> */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
         {products.length > 0 ? (
           products.map((product) => <ProductCard key={product.id} product={product} />)
