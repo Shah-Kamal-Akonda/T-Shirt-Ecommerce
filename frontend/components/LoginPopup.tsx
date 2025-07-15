@@ -1,12 +1,12 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
-
 import { useAuth } from '@/app/context/AuthContext';
 
 interface LoginPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess: () => Promise<void>; // ADD HERE: Added onSuccess prop
 }
 
 interface LoginResponse {
@@ -28,7 +28,7 @@ interface ErrorResponse {
   statusCode?: number;
 }
 
-const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
+const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose, onSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -46,9 +46,10 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
       const response = await axios.post<LoginResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, { email, password });
       if (response.data.message === 'Login successful' && response.data.token) {
         localStorage.setItem('token', response.data.token);
-        setIsLoggedIn(true); // Update AuthContext
+        setIsLoggedIn(true);
         setStep('success');
         setErrorMessage('');
+        await onSuccess(); // Call onSuccess after login
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: ErrorResponse } };

@@ -1,8 +1,13 @@
 'use client';
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useCart } from '@/app/context/CartContext';
+import { useAuth } from '@/app/context/AuthContext';
 import Image from 'next/image';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import SignUpPopup from './SignUpPopup';
+import LoginPopup from './LoginPopup';
+import PopupAddress from './PopupAddress';
+import OrderPopup from './OrederPopup';
 
 interface CartSliderProps {
   isOpen: boolean;
@@ -11,6 +16,12 @@ interface CartSliderProps {
 
 const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
   const { cart, updateQuantity, removeFromCart } = useCart();
+  const { isLoggedIn, addresses, fetchAddresses } = useAuth();
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAddressOpen, setIsAddressOpen] = useState(false);
+  const [isOrderOpen, setIsOrderOpen] = useState(false);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
 
   const calculateTotal = () => {
     return cart
@@ -20,6 +31,60 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
       }, 0)
       .toFixed(2);
   };
+
+  const checkAddresses = useCallback(async () => {
+    if (isLoadingAddresses) return; // Prevent multiple fetches
+    setIsLoadingAddresses(true);
+    try {
+      await fetchAddresses();
+      if (addresses.length === 0) {
+        setIsAddressOpen(true);
+        setIsOrderOpen(false);
+      } else {
+        setIsAddressOpen(false);
+        setIsOrderOpen(true);
+      }
+    } finally {
+      setIsLoadingAddresses(false);
+    }
+  }, [addresses, fetchAddresses, isLoadingAddresses]);
+
+  const handleBuyNow = useCallback(async () => {
+    if (!isLoggedIn) {
+      setIsSignUpOpen(true);
+      return;
+    }
+    await checkAddresses();
+  }, [isLoggedIn, checkAddresses]);
+
+  const handleSignUpSuccess = useCallback(() => {
+    setIsSignUpOpen(false);
+    setIsLoginOpen(true);
+  }, []);
+
+  const handleLoginSuccess = useCallback(async () => {
+    setIsLoginOpen(false);
+    await checkAddresses();
+  }, [checkAddresses]);
+
+  const handleAddressSuccess = useCallback(async () => {
+    if (isLoadingAddresses) return; // Prevent multiple fetches
+    setIsAddressOpen(false);
+    setIsLoadingAddresses(true);
+    try {
+      await fetchAddresses();
+      setIsOrderOpen(true); // Open OrderPopup after address is saved
+    } finally {
+      setIsLoadingAddresses(false);
+    }
+  }, [fetchAddresses, isLoadingAddresses]);
+
+  // Fetch addresses when component mounts or isLoggedIn changes
+  useEffect(() => {
+    if (isLoggedIn && !isLoadingAddresses) {
+      fetchAddresses();
+    }
+  }, [isLoggedIn, fetchAddresses]);
 
   return (
     <div
@@ -37,7 +102,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         {cart.length > 0 ? (
           <div className="space-y-4">
             {cart.map((item) => (
-              <div key={`${item.id}-${item.size}`} className="flex items-center gap-4 border-b pb-4"> {/* ADD HERE: Use id and size for key */}
+              <div key={`${item.id}-${item.size}`} className="flex items-center gap-4 border-b pb-4">
                 <div className="relative w-16 h-16">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_API_URL}${item.image}`}
@@ -48,7 +113,6 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-gray-800 font-medium text-sm">{item.name}</h3>
-                  {/* ADD HERE: Display selected size */}
                   <p className="text-gray-600 text-sm">Size: {item.size}</p>
                   <p className="text-gray-600 text-sm">
                     {item.discount ? (
@@ -67,8 +131,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                   </p>
                   <div className="flex items-center mt-2">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.size)} // ADD HERE: Pass size
+                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.size)}
                       className="bg-gray-200 text-gray-800 px-2 py-1 rounded-l text-sm"
+                      disabled={isLoadingAddresses}
                     >
                       –
                     </button>
@@ -76,14 +141,16 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.size)} // ADD HERE: Pass size
+                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.size)}
                       className="bg-gray-200 text-gray-800 px-2 py-1 rounded-r text-sm"
+                      disabled={isLoadingAddresses}
                     >
                       +
                     </button>
                     <button
-                      onClick={() => removeFromCart(item.id, item.size)} // ADD HERE: Pass size
+                      onClick={() => removeFromCart(item.id, item.size)}
                       className="ml-4 text-red-600 text-sm"
+                      disabled={isLoadingAddresses}
                     >
                       Remove
                     </button>
@@ -99,6 +166,26 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           <p className="text-gray-500">Your cart is empty.</p>
         )}
       </div>
+      <div className="fixed bottom-4 md:bottom-8 lg:bottom-10 left-0 right-0 flex justify-center">
+        <button
+          onClick={handleBuyNow}
+          className="bg-green-500 text-white rounded-sm md:rounded-md lg:rounded-lg p-2 md:p-3 lg:p-4 font-semibold text-[12px] md:text-[16px] lg:text-[20px] disabled:bg-gray-400"
+          disabled={cart.length === 0 || isLoadingAddresses}
+        >
+          {isLoadingAddresses ? 'Loading...' : 'Buy Now'}
+        </button>
+      </div>
+      <SignUpPopup isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} onLogin={handleSignUpSuccess} />
+      <LoginPopup isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSuccess={handleLoginSuccess} />
+      <PopupAddress isOpen={isAddressOpen} onClose={() => setIsAddressOpen(false)} onSuccess={handleAddressSuccess} />
+      {isOrderOpen && addresses.length > 0 && (
+        <OrderPopup
+          cart={cart}
+          total={calculateTotal()}
+          address={addresses[0]}
+          onClose={() => setIsOrderOpen(false)}
+        />
+      )}
     </div>
   );
 };

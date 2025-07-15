@@ -1,12 +1,12 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 
 interface SignUpPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  onLogin: () => void; // Add onLogin prop to trigger LoginPopup
 }
 
 interface SignupResponse {
@@ -24,14 +24,13 @@ interface ErrorResponse {
   statusCode?: number;
 }
 
-const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
+const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [step, setStep] = useState<'signup' | 'verify' | 'success' | 'error'>('signup');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const { setIsLoggedIn } = useAuth();
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
@@ -59,10 +58,10 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
       const response = await axios.post<VerifyCodeResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-code`, { email, code, password });
       if (response.data.message === 'Sign up successful' && response.data.token) {
         localStorage.setItem('token', response.data.token);
-        setIsLoggedIn(true); // Update AuthContext
+        setIsLoggedIn(true);
         setStep('success');
         setErrorMessage('');
-        router.push('/profile');
+        onLogin(); // Trigger LoginPopup instead of redirecting to profile
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: ErrorResponse } };
@@ -127,6 +126,13 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
             >
               {isLoading ? 'Sending...' : 'Send Verification Code'}
             </button>
+            <button
+              type="button"
+              onClick={onLogin}
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
+            >
+              Already have an account? Login
+            </button>
           </form>
         )}
 
@@ -154,16 +160,29 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
             >
               {isLoading ? 'Verifying...' : 'Verify Code'}
             </button>
+            <button
+              type="button"
+              onClick={onLogin}
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
+            >
+              Already have an account? Login
+            </button>
           </form>
         )}
 
         {step === 'success' && (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-gray-800">Sign Up Successful</h2>
-            <p className="text-green-600">Your account has been created successfully!</p>
+            <p className="text-green-600">Your account has been created successfully! Please log in.</p>
+            <button
+              onClick={onLogin}
+              className="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700"
+            >
+              Login
+            </button>
             <button
               onClick={handleClose}
-              className="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700"
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
             >
               Close
             </button>
@@ -185,6 +204,13 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ isOpen, onClose }) => {
               className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
             >
               Back to Sign Up
+            </button>
+            <button
+              type="button"
+              onClick={onLogin}
+              className="w-full text-green-600 hover:text-green-800 text-sm mt-2"
+            >
+              Already have an account? Login
             </button>
           </div>
         )}

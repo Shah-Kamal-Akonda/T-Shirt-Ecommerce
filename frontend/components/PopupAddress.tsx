@@ -13,6 +13,7 @@ interface PopupAddressProps {
   isOpen: boolean;
   onClose: () => void;
   address?: Address;
+  onSuccess?: () => Promise<void>; // Ensure onSuccess is included
 }
 
 interface AddressResponse {
@@ -25,7 +26,7 @@ interface ErrorResponse {
   statusCode?: number;
 }
 
-const PopupAddress: React.FC<PopupAddressProps> = ({ isOpen, onClose, address }) => {
+const PopupAddress: React.FC<PopupAddressProps> = ({ isOpen, onClose, address, onSuccess }) => {
   const [name, setName] = useState(address?.name || '');
   const [addressText, setAddressText] = useState(address?.address || '');
   const [mobileNumber, setMobileNumber] = useState(address?.mobileNumber || '');
@@ -48,23 +49,23 @@ const PopupAddress: React.FC<PopupAddressProps> = ({ isOpen, onClose, address })
 
     try {
       if (address?.id) {
-        // Update existing address
         const response = await axios.put<AddressResponse>(
           `${process.env.NEXT_PUBLIC_API_URL}/addresses/${address.id}`,
           { ...newAddress, id: address.id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (response.data.message === 'Address updated successfully') {
+          if (onSuccess) await onSuccess();
           onClose();
         }
       } else {
-        // Add new address
         const response = await axios.post<AddressResponse>(
           `${process.env.NEXT_PUBLIC_API_URL}/addresses`,
           newAddress,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (response.data.message === 'Address added successfully') {
+          if (onSuccess) await onSuccess();
           onClose();
         }
       }
@@ -105,7 +106,7 @@ const PopupAddress: React.FC<PopupAddressProps> = ({ isOpen, onClose, address })
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
               required
               disabled={isLoading}
             />
@@ -116,7 +117,7 @@ const PopupAddress: React.FC<PopupAddressProps> = ({ isOpen, onClose, address })
               type="text"
               value={addressText}
               onChange={(e) => setAddressText(e.target.value)}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
               required
               disabled={isLoading}
             />
@@ -127,14 +128,14 @@ const PopupAddress: React.FC<PopupAddressProps> = ({ isOpen, onClose, address })
               type="text"
               value={mobileNumber}
               onChange={(e) => setMobileNumber(e.target.value)}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
               required
               disabled={isLoading}
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
+            className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 disabled:bg-green-400"
             disabled={isLoading}
           >
             {isLoading ? 'Saving...' : address ? 'Update Address' : 'Add Address'}

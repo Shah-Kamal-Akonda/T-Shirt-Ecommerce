@@ -1,4 +1,4 @@
-
+'use client'
 import CartIcon from '../../components/Carticon';
 import Navbar from '../../components/navbar';
 import { CartProvider } from './context/CartContext';

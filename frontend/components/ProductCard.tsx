@@ -67,10 +67,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     : null;
 
   return (
-    <div className="p-4 hover:shadow-lg transition bg-white">
+    <div className=" hover:shadow-lg transition bg-white  ">
       {/* Navigable content wrapped in Link */}
-      <Link href={`/products/${product.id}`}>
-        <div className="relative p-2 md:p-0 w-[130px] md:w-[230px] lg:w-[350px] h-[130px] md:h-[160px] lg:h-[280px] mt-2 overflow-hidden bg-white">
+      <Link href={`/products/${product.id}`}> 
+        <div className="relative  md:p-0 w-[130px] md:w-[230px] lg:w-[360px] h-[130px] md:h-[160px] lg:h-[280px] mt-2 overflow-hidden bg-white">
           {Array.isArray(product.images) && product.images.length > 0 ? (
             <Image
               src={`${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`}

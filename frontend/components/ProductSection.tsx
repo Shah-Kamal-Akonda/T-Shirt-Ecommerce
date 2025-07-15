@@ -59,11 +59,11 @@ const HomePage: React.FC = () => {
   }, [sizeFilter]); // CHANGE HERE: Added sizeFilter to dependencies
 
   if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>;
+    return <div className="w-full">Loading...</div>;
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="w-full ">
       {/* ADD HERE: Size filter dropdown */}
       {/* this part is hiiden by use Hidden */}
       <div className="mb-6 hidden">
@@ -83,9 +83,9 @@ const HomePage: React.FC = () => {
 
       {categories.length > 0 ? (
         categories.map((category) => (
-          <div key={category.id} className="mb-8">
+          <div key={category.id} className="mb-8 ">
             <h2 className="text-2xl text-center font-bold my-6 text-gray-800">{category.name}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 w-full px-4">
               {productsByCategory[category.id]?.length > 0 ? (
                 productsByCategory[category.id].map((product) => (
                   <ProductCard key={product.id} product={product} />

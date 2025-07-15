@@ -8,17 +8,18 @@ interface CartItem {
   image: string;
   quantity: number;
   discount: number | null | undefined;
-  size: string; // ADD HERE: Added size to CartItem to support size selection
+  size: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  updateQuantity: (id: number, quantity: number, size: string) => void; // ADD HERE: Added size parameter
-  removeFromCart: (id: number, size: string) => void; // ADD HERE: Added size parameter
+  updateQuantity: (id: number, quantity: number, size: string) => void;
+  removeFromCart: (id: number, size: string) => void;
   cartCount: number;
   toggleCart: () => void;
   isCartOpen: boolean;
+  clearCart: () => void; // ADD HERE: Added clearCart to interface
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -29,7 +30,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const addToCart = (item: CartItem) => {
     setCart((prev) => {
-      // ADD HERE: Match by both id and size
       const existingItem = prev.find((cartItem) => cartItem.id === item.id && cartItem.size === item.size);
       if (existingItem) {
         return prev.map((cartItem) =>
@@ -40,7 +40,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       return [...prev, item];
     });
-    setIsCartOpen(true); // Open slider on add to cart
+    setIsCartOpen(true);
   };
 
   const updateQuantity = (id: number, quantity: number, size: string) => {
@@ -60,10 +60,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsCartOpen((prev) => !prev);
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, cartCount, toggleCart, isCartOpen }}>
+    <CartContext.Provider
+      value={{ cart, addToCart, updateQuantity, removeFromCart, cartCount, toggleCart, isCartOpen, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );
